@@ -1,0 +1,374 @@
+# yaml-language-server: $schema=../openapi/oas3-schema.json
+openapi: 3.0.0
+info:
+  title: Holiday Service API
+  description: The end points for the Holiday Service.
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: http://api.staging.example.com
+    description: Staging server
+
+paths:
+  /api/holidays/last/{country}:
+    get:
+      summary: Get the last three holidays celebrated in a country.
+      description: Returns the three most recently celebrated public holidays in the specified country, ordered from most recent to oldest. Only holidays that occurred before the current date are included.
+      parameters:
+        - name: country
+          in: path
+          description: The 2 country code (uppercase).
+          required: true
+          schema:
+            type: string
+            pattern: "^[A-Z]{2}$"
+          example: NL
+
+      responses:
+        '200':
+          description: A list of the last three celebrated holidays.
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/LastHolidaysResponse'
+
+        '400':
+          description: Invalid request (e.g. country code format).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_COUNTRY_CODE
+                message: Country code must be a valid ISO 3166-1 alpha-2 code.
+                details:
+                  providedValue: "NLD"
+                timestamp: "2025-06-01T10:15:30Z"
+                path: "/api/holidays/last/NLD"
+
+        '404':
+          description: Country not supported or no holiday data available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: COUNTRY_NOT_SUPPORTED
+                message: No holiday data found for the specified country.
+                details:
+                  country: "XX"
+                timestamp: "2025-06-01T10:16:02Z"
+                path: "/api/holidays/last/XX"
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                message: An unexpected error occurred while processing the request.
+                details: null
+                timestamp: "2025-06-01T10:17:45Z"
+                path: "/api/holidays/last/NL"
+
+
+  /api/holidays/non-weekday-counts:
+    get:
+      summary: Get count of weekday holidays per country sorted in descending by count.
+      description: Given a year and a list of country codes, returns the country and number of holidays that do not fall on weekends for each country for the given year, sorted in descending by count.
+      parameters:
+        - name: year
+          in: query
+          description: The year for which the weekday holidays need to be retrived.
+          style: form
+          schema:
+            type: integer
+            format: int32
+            example : 2025
+            
+        - name: countries
+          in: query
+          description: A list of country codes (ISO 3166-1 alpha-2).
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: string
+              pattern: "^[A-Z]{2}$"
+              example: ["NL", "DE"]
+
+        - name: sort
+          in: query
+          description: Sort order for results
+          schema:
+            type: string
+            enum: [count_desc, count_asc]
+            default: count_desc
+
+      responses:
+        '200':
+          description: A list of countries with count of weekday holidays.
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeekdayHolidayCountsResponse'
+
+        '400':
+          description: Bad request, invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_PARAMETER
+                message: "Invalid year or country code."
+                details:
+                  year: "XXXX"
+                  country: "XX"
+                timestamp: "2025-06-01T10:15:30Z"
+                path: "api/holidays/nonWeekendHolidayCounts"
+
+        '404':
+          description: No holidays found for the given parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: NO_HOLIDAY_FOUND_FOR_YEAR__AND_COUNTRY
+                message: "No holidays found for the provided year and country codes."
+                details:
+                  year: "XXXX"
+                  country: "XX"
+                timestamp: "2025-06-01T10:16:02Z"
+                path: "api/holidays/nonWeekendHolidayCounts"
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INTERNAL_SERVER_ERROR
+                message: "An unexpected error occurred. Please try again later."
+                details: null
+                timestamp: "2025-06-01T10:17:45Z"
+                path: "api/holidays/nonWeekendHolidayCounts"
+
+
+  /api/holidays/common:
+    get:
+      summary: Get common public holidays between two countries for a given year
+      description: Given a year and exactly two country codes, returns a deduplicated list of
+        public holiday dates that are celebrated in both countries. Each result
+        includes the date and the local holiday names per country.
+      parameters:
+        - name: year
+          in: query
+          description: Year for which common holidays are requested
+          schema:
+            type: integer
+            format: int32
+            example: 2025
+
+        - name: countries
+          in: query
+          description: Exactly two ISO 3166-1 alpha-2 country codes
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: string
+              pattern: "^[A-Z]{2}$"
+              example: NL
+
+      responses:
+        '200':
+          description: List of no duplicated holiday dates common to both countries
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - year
+                  - countries
+                  - results
+                  - count
+                properties:
+                  year:
+                    type: integer
+                    example: 2025
+                  countries:
+                    type: array
+                    items:
+                      type: string
+                      example: NL
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                          example: 2025-01-01
+                        localNames:
+                          type: object
+                          additionalProperties:
+                            type: string
+                          example:
+                            NL: Nieuwjaarsdag
+                            DE: Neujahr
+                  count:
+                    type: integer
+                    example: 3
+
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_PARAMETER
+                message: "Invalid year or country code."
+                details:
+                  year: "XXXX"
+                  country: "XX"
+                timestamp: "2025-06-01T10:17:45Z"
+                path: "/api/holidays/common"
+
+        '404':
+          description: No common holidays found for the given inputs
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                example:
+                  code: NO_COMMON_HOLIDAYS_FOUND
+                  message: "No common holidays found for the given inputs."
+                  details:
+                    year: "XXXX"
+                    country: "XX"
+                  timestamp: "2025-06-01T10:17:45Z"
+                  path: "/api/holidays/common"
+
+        '500':
+          description: Internal server error.
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                example:
+                  code: INTERNAL_SERVER_ERROR
+                  message: "An unexpected error occurred. Please try again later."
+                  details: null
+                  timestamp: "2025-06-01T10:17:45Z"
+                  path: "/api/holidays/common"
+
+
+components:
+  schemas:
+    HolidaysResponseResult:
+      type: array
+      description: List of the most recently celebrated public holidays.
+      minItems: 0
+      maxItems: 3
+      items:
+        type: object
+        required:
+          - date
+          - localName
+        properties:
+          date:
+            type: string
+            format: date
+            description: Date when the holiday was celebrated.
+            example: 2025-05-29
+          localName:
+            type: string
+            description: Local name of the holiday.
+            example: Hemelvaartsdag
+
+    LastHolidaysResponse:
+      type: object
+      required:
+        - country
+        - results
+        - count
+      properties:
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code.
+          pattern: "^[A-Z]{2}$"
+          example: NL
+        results:
+          $ref: '#/components/schemas/HolidaysResponseResult'
+        count:
+          type: integer
+          description: Number of holidays returned.
+          minimum: 0
+          maximum: 3
+          example: 3
+
+    HolidayCountResult:
+      type: object
+      properties:
+        country:
+          type: string
+          example: NL
+        count:
+          type: integer
+          example: 5
+
+    WeekdayHolidayCountsResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+          example: 2025
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/HolidayCountResult'
+      required:
+        - year
+        - results      
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+        - path
+      properties:
+        code:
+          type: string
+          description: Stable, machine-readable error identifier.
+          example: INVALID_COUNTRY_CODE
+        message:
+          type: string
+          description: Human-readable error message.
+          example: Country code must be a valid ISO 3166-1 alpha-2 code.
+        details:
+          type: object
+          nullable: true
+          description: Optional structured details to help clients or AI agents resolve the error.
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when the error occurred (UTC).
+        path:
+          type: string
+          description: Request path that caused the error.
