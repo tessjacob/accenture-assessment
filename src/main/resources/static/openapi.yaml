@@ -212,7 +212,7 @@ paths:
                     type: array
                     items:
                       type: string
-                      example: NL
+                      example: ["NL", "DE"]
                   results:
                     type: array
                     items:
