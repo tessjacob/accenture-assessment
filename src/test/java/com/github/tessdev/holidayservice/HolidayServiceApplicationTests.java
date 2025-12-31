@@ -1,5 +1,6 @@
-package com.github.tessdev.nager_holiday_client;
+package com.github.tessdev.holidayservice;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -7,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class HolidayServiceApplicationTests {
 
 	@Test
+	@DisplayName("Context loads successfully")
 	void contextLoads() {
 	}
 

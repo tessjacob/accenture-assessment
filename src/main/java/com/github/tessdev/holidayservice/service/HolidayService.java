@@ -11,8 +11,8 @@ import com.github.tessdev.holidayservice.model.Holiday;
 public class HolidayService {
 
     public List<Holiday> lastThreeHolidays(final String country) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getWeekdayHolidayCounts'");
+        // Temporary stub implementation
+        return List.of();
     }
 
     public Map<String, Long> getWeekdayHolidayCounts(int year, List<String> countries) {

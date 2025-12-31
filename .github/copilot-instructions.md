@@ -83,7 +83,7 @@ Service should:
 - Mock `HolidayService` in controller tests
 
 ## Key Files Reference
-- **Entry Point**: [HolidayServiceApplication.java](../src/main/java/com/github/tessdev/nager_holiday_client/HolidayServiceApplication.java)
+- **Entry Point**: [HolidayServiceApplication.java](../src/main/java/com/github/tessdev/holidayservice/HolidayServiceApplication.java)
 - **REST Layer**: [HolidayController.java](../src/main/java/com/github/tessdev/holidayservice/controller/HolidayController.java)
 - **Business Logic**: [HolidayService.java](../src/main/java/com/github/tessdev/holidayservice/service/HolidayService.java)
 - **Data Model**: [Holiday.java](../src/main/java/com/github/tessdev/holidayservice/model/Holiday.java)
