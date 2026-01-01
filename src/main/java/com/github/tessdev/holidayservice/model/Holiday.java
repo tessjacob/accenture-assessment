@@ -2,31 +2,11 @@ package com.github.tessdev.holidayservice.model;
 
 import java.time.LocalDate;
 
-public class Holiday {
+import io.swagger.v3.oas.annotations.media.Schema;
 
-    private String name;
-    private LocalDate date;
+@Schema(description = "Public holiday information")
+public record Holiday(
+        @Schema(example = "2025-05-29") LocalDate date,
 
-    public Holiday() {}
-
-    public Holiday(String name, LocalDate date) {
-        this.name = name;
-        this.date = date;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+        @Schema(example = "Hemelvaartsdag") String name) {
 }

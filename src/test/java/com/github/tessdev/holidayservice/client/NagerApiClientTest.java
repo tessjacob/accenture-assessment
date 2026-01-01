@@ -23,7 +23,7 @@ import com.github.tessdev.holidayservice.model.Holiday;
 class NagerApiClientTest {
 
         @Test
-        @DisplayName("getHolidays success returns list of holidays")
+        @DisplayName("getHolidays success returns list of holidays.")
         void getHolidays_success_returnsList() throws Exception {
                 HttpClient mockClient = mock(HttpClient.class);
                 HttpResponse<String> mockResponse = mock(HttpResponse.class);
@@ -57,12 +57,12 @@ class NagerApiClientTest {
                 List<Holiday> holidays = client.getHolidays(2025, "NL");
 
                 assertEquals(1, holidays.size());
-                assertEquals("Christmas Day", holidays.get(0).getName());
-                assertEquals(java.time.LocalDate.of(2025, 12, 25), holidays.get(0).getDate());
+                assertEquals("Christmas Day", holidays.get(0).name());
+                assertEquals(java.time.LocalDate.of(2025, 12, 25), holidays.get(0).date());
         }
 
         @Test
-        @DisplayName("getHolidays non-200 response throws ExternalServiceException")
+        @DisplayName("getHolidays non-200 response throws ExternalServiceException.")
         void getHolidays_non200_throwsExternalServiceException() throws Exception {
                 HttpClient mockClient = mock(HttpClient.class);
                 HttpResponse<String> mockResponse = mock(HttpResponse.class);
@@ -86,7 +86,7 @@ class NagerApiClientTest {
         }
 
         @Test
-        @DisplayName("getHolidays IOException throws ExternalServiceException")
+        @DisplayName("getHolidays IOException throws ExternalServiceException.")
         void getHolidays_ioException_throwsExternalServiceException() throws Exception {
                 HttpClient mockClient = mock(HttpClient.class);
 

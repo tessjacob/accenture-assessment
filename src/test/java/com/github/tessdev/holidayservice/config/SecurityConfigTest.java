@@ -27,9 +27,9 @@ public class SecurityConfigTest {
     HolidayService holidayService;
 
     @Test
-    @DisplayName("Endpoint is accessible without authentication")
+    @DisplayName("Endpoint is accessible without authentication.")
     void endpointIsAccessibleWithoutAuth() throws Exception {
-        when(holidayService.lastThreeHolidays("DE"))
+        when(holidayService.getLastHolidays("DE", 3))
                 .thenReturn(List.of());
 
         mockMvc.perform(get("/api/holidays/last/DE"))

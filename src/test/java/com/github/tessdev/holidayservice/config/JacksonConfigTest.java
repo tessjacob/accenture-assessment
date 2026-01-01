@@ -18,13 +18,13 @@ class JacksonConfigTest {
     ObjectMapper mapper;
 
     @Test
-    @DisplayName("ObjectMapper ignores unknown properties")
+    @DisplayName("ObjectMapper ignores unknown properties.")
     void ignoresUnknownProperties() throws Exception {
         String json = """
                     { "date":"2024-01-01", "name":"Test", "extra":"ignored" }
                 """;
 
         Holiday h = mapper.readValue(json, Holiday.class);
-        assertEquals("Test", h.getName());
+        assertEquals("Test", h.name());
     }
 }

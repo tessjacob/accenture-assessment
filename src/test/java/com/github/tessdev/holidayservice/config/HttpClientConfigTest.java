@@ -16,7 +16,7 @@ class HttpClientConfigTest {
     HttpClient httpClient;
 
     @Test
-    @DisplayName("HttpClient bean is created")
+    @DisplayName("HttpClient bean is created.")
     void httpClientBeanExists() {
         assertNotNull(httpClient);
     }
