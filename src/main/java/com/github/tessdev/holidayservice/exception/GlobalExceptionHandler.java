@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -18,6 +17,7 @@ public class GlobalExceptionHandler {
         private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
         @ExceptionHandler(ExternalServiceException.class)
+        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
         public ResponseEntity<ErrorResponse> handleExternalServiceException(
                         ExternalServiceException ex, WebRequest request) {
 
@@ -38,24 +38,39 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleInvalidCountry(InvalidCountryCodeException ex,
                         HttpServletRequest request) {
                 ErrorResponse errorResponse = new ErrorResponse(
-                                "INVALID_PARAMETER",
                                 "INVALID_COUNTRY_CODE",
-                                "Invalid country code provided.",
+                                "INVALID_COUNTRY_CODE",
+                                "Country code must be a valid ISO 3166-1 alpha-2 code.",
                                 request.getRequestURI());
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
 
-        @ExceptionHandler(ConstraintViolationException.class)
-        @ResponseStatus(HttpStatus.BAD_REQUEST)
-        public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
+        @ExceptionHandler(CountryNotSupportedException.class)
+        @ResponseStatus(HttpStatus.NOT_FOUND)
+        public ResponseEntity<ErrorResponse> handleCountryNotSupported(CountryNotSupportedException ex,
                         HttpServletRequest request) {
                 ErrorResponse errorResponse = new ErrorResponse(
-                                "INVALID_PARAMETER",
-                                "INVALID_INPUT",
-                                "Invalid input provided.",
+                                "COUNTRY_NOT_SUPPORTED",
+                                "COUNTRY_NOT_SUPPORTED",
+                                "No holiday data found for the specified country.",
                                 request.getRequestURI());
 
-                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        @ExceptionHandler(Exception.class)
+        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+        public ResponseEntity<ErrorResponse> handleGenericException(Exception ex,
+                        HttpServletRequest request) {
+                logger.error("Unhandled exception: {}", ex.getMessage(), ex);
+
+                ErrorResponse errorResponse = new ErrorResponse(
+                                "INTERNAL_SERVER_ERROR",
+                                "GENERIC_ERROR",
+                                "An unexpected error occurred. Please try again later.",
+                                request.getRequestURI());
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 }

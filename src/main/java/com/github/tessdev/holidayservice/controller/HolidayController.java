@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.tessdev.holidayservice.exception.CountryNotSupportedException;
 import com.github.tessdev.holidayservice.exception.InvalidCountryCodeException;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
@@ -45,6 +46,10 @@ public class HolidayController {
         List<Holiday> results = holidayService.getLastHolidays(
                 country.toUpperCase(),
                 effectiveCount);
+
+        if (results.isEmpty()) {
+            throw new CountryNotSupportedException(country);
+        }
 
         return new LastHolidaysResponse(
                 country.toUpperCase(),

@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.service.HolidayService;
 
 @SpringBootTest
@@ -29,10 +30,14 @@ public class SecurityConfigTest {
     @Test
     @DisplayName("Endpoint is accessible without authentication.")
     void endpointIsAccessibleWithoutAuth() throws Exception {
-        when(holidayService.getLastHolidays("DE", 3))
-                .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/holidays/last/DE"))
+        when(holidayService.getLastHolidays("DE", 3))
+                .thenReturn(List.of(
+                        new Holiday("2024-10-03", "German Unity Day")));
+
+        mockMvc.perform(
+                get("/api/holidays/last/DE")
+                        .param("count", "3"))
                 .andExpect(status().isOk());
     }
 }

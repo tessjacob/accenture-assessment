@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.github.tessdev.holidayservice.exception.CountryNotSupportedException;
 import com.github.tessdev.holidayservice.exception.InvalidCountryCodeException;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
@@ -116,5 +117,19 @@ public class HolidayControllerTest {
                 () -> holidayController.getLastHolidays(invalidCountry, null));
 
         assertEquals(invalidCountry, ex.getCountryCode());
+    }
+
+    @Test
+    @DisplayName("getLastHolidays with unsupported country throws CountryNotSupportedException.")
+    void testGetLastHolidays_CountryNotSupported() throws IOException, InterruptedException {
+        var country = "ZZ";
+
+        when(holidayService.getLastHolidays(country, 3)).thenReturn(List.of());
+
+        CountryNotSupportedException ex = assertThrows(
+                CountryNotSupportedException.class,
+                () -> holidayController.getLastHolidays(country, 3));
+
+        assertEquals(country, ex.getCountryCode());
     }
 }

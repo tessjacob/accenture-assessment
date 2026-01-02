@@ -5,6 +5,11 @@ public class ExternalServiceException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private final String serviceUrl;
 
+    public ExternalServiceException(String message) {
+        super(message);
+        this.serviceUrl = null;
+    }
+
     public ExternalServiceException(String message, String serviceUrl) {
         super(message);
         this.serviceUrl = serviceUrl;
