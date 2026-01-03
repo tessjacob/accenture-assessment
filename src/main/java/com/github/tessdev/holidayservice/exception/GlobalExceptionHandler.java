@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
         @ExceptionHandler(ExternalServiceException.class)
-        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+        @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
         public ResponseEntity<ErrorResponse> handleExternalServiceException(
                         ExternalServiceException ex, WebRequest request) {
 
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
                                 ex.getServiceUrl(), ex.getMessage());
 
                 ErrorResponse errorResponse = new ErrorResponse(
-                                "INTERNAL_SERVER_ERROR",
+                                "SERVICE_UNAVAILABLE",
                                 "SERVICE_UNAVAILABLE",
                                 "External service is temporarily unavailable. Please try again later.",
                                 request.getDescription(false).replace("uri=", ""));

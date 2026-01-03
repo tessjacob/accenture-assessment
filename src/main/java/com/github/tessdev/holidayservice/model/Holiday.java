@@ -13,4 +13,12 @@ public record Holiday(
         public Holiday(String string, String string2) {
                 this(LocalDate.parse(string), string2);
         }
+
+        public String getDate() {
+                return date.toString();
+        }
+
+        public String getName() {
+                return name;
+        }
 }
