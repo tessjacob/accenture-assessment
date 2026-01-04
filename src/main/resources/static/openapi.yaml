@@ -206,40 +206,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - year
-                  - countries
-                  - results
-                  - count
-                properties:
-                  year:
-                    type: integer
-                    example: 2025
-                  countries:
-                    type: array
-                    items:
-                      type: string
-                      example: ["NL", "DE"]
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        date:
-                          type: string
-                          format: date
-                          example: 2025-01-01
-                        localNames:
-                          type: object
-                          additionalProperties:
-                            type: string
-                          example:
-                            NL: Nieuwjaarsdag
-                            DE: Neujahr
-                  count:
-                    type: integer
-                    example: 3
+                $ref: '#/components/schemas/CommonHolidaysResponse'
 
         '400':
           description: Invalid request parameters
@@ -351,7 +318,45 @@ components:
             $ref: '#/components/schemas/HolidayCountResult'
       required:
         - year
-        - results      
+        - results
+
+    CommonHoliday:
+      type: object
+      description: Public holiday celebrated on the same date in multiple countries
+      required:
+        - date
+        - localNames
+      properties:
+        date:
+          type: string
+          format: date
+          description: Holiday date in ISO-8601 format
+          example: '2024-05-01'
+        localNames:
+          type: object
+          description: Map of country codes to local holiday names
+          additionalProperties:
+            type: string
+          example:
+            DE: Tag der Arbeit
+            FR: Fête du Travail
+
+    CommonHolidaysResponse:
+      type: object
+      description: Response containing common public holidays shared by two countries in a given year
+      required:
+        - year
+        - results
+      properties:
+        year:
+          type: integer
+          description: Year for which common public holidays are returned
+          example: 2024
+        results:
+          type: array
+          description: List of deduplicated public holiday dates celebrated in both countries
+          items:
+            $ref: '#/components/schemas/CommonHoliday'
 
     ErrorResponse:
       type: object
