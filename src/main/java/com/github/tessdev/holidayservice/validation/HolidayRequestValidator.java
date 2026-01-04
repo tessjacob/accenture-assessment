@@ -12,6 +12,7 @@ import com.github.tessdev.holidayservice.exception.InvalidYearException;
 @Component
 public class HolidayRequestValidator {
 
+    private static final int DEFAULT_HOLIDAY_COUNT = 3;
     private static final int MIN_YEAR = 1900;
 
     public void validateYear(int year) {
@@ -44,6 +45,23 @@ public class HolidayRequestValidator {
                 && !"descending".equalsIgnoreCase(sort)) {
             throw new InvalidRequestException(
                     "Sort must be 'ascending' or 'descending'");
+        }
+    }
+
+    public int resolveCount(Integer count) {
+        if (count == null || count <= 0) {
+            return DEFAULT_HOLIDAY_COUNT;
+        }
+
+        if (count > 3) {
+            throw new InvalidRequestException("Count must be between 0 and 3");
+        }
+        return count;
+    }
+
+    public void validateCountryCode(String country) {
+        if (country == null || !country.matches("^[A-Za-z]{2}$")) {
+            throw new InvalidCountryCodeException(country);
         }
     }
 }

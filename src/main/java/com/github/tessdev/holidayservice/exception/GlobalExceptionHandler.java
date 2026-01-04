@@ -59,9 +59,9 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
-        @ExceptionHandler(Exception.class)
+        @ExceptionHandler(InvalidYearException.class)
         @ResponseStatus(HttpStatus.BAD_REQUEST)
-        public ResponseEntity<ErrorResponse> handleGenericException(InvalidYearException ex,
+        public ResponseEntity<ErrorResponse> handleInvalidYearException(InvalidYearException ex,
                         HttpServletRequest request) {
                 logger.error("Unhandled exception: {}", ex.getMessage(), ex);
 
@@ -74,9 +74,24 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
 
+        @ExceptionHandler(InvalidRequestException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException ex,
+                        HttpServletRequest request) {
+                logger.error("Unhandled exception: {}", ex.getMessage(), ex);
+
+                ErrorResponse errorResponse = new ErrorResponse(
+                                "BAD_REQUEST",
+                                "BAD_REQUEST",
+                                ex.getMessage(),
+                                request.getRequestURI());
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
         @ExceptionHandler(Exception.class)
         @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-        public ResponseEntity<ErrorResponse> handleGenericException(Exception ex,
+        public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex,
                         HttpServletRequest request) {
                 logger.error("Unhandled exception: {}", ex.getMessage(), ex);
 

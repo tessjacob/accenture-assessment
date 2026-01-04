@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.github.tessdev.holidayservice.client.NagerApiClient;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
+import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 
 @Service
@@ -25,16 +26,19 @@ public class HolidayService {
         return nagerApiClient.getHolidays(year, country);
     }
 
-    public List<Holiday> getLastHolidays(final String country,
-            int limit) {
+    public LastHolidaysResponse getLastHolidays(final String country, int limit) {
         int year = LocalDate.now().getYear();
-        List<Holiday> holidays = fetchHolidaysForYear(country, year);
-        return holidays.stream()
+        List<Holiday> results = fetchHolidaysForYear(country, year).stream()
                 .filter(h -> h.date().isBefore(LocalDate.now())) // celebrated
                 .sorted(Comparator.comparing(Holiday::date).reversed())
                 .limit(limit)
                 .map(h -> new Holiday(h.date(), h.name()))
                 .toList();
+
+        return new LastHolidaysResponse(
+                country.toUpperCase(),
+                results,
+                results.size());
     }
 
     public WeekdayHolidayCountsResponse getWeekdayHolidayCounts(int year,

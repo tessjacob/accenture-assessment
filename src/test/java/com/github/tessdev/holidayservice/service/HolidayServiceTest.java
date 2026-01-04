@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
+import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,10 +47,12 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
-                List<Holiday> result = holidayService.getLastHolidays("NL", 3);
+                LastHolidaysResponse response = holidayService.getLastHolidays("NL", 3);
 
-                assertEquals(2, result.size());
-                assertTrue(result.stream().allMatch(h -> h.date().isBefore(today)));
+                assertEquals(2, response.results().size());
+                assertTrue(response.results().stream().allMatch(h -> h.date().isBefore(today)));
+                assertEquals(2, response.count());
+                assertEquals("NL", response.country());
         }
 
         @Test
@@ -64,10 +67,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
-                List<Holiday> result = holidayService.getLastHolidays("NL", 5);
+                LastHolidaysResponse response = holidayService.getLastHolidays("NL", 5);
 
-                assertEquals("Newer", result.get(0).name());
-                assertEquals("Older", result.get(1).name());
+                assertEquals("Newer", response.results().get(0).name());
+                assertEquals("Older", response.results().get(1).name());
         }
 
         @Test
@@ -84,9 +87,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
-                List<Holiday> result = holidayService.getLastHolidays("NL", 2);
+                LastHolidaysResponse response = holidayService.getLastHolidays("NL", 2);
 
-                assertEquals(2, result.size());
+                assertEquals(2, response.results().size());
+                assertEquals(2, response.count());
         }
 
         @Test
@@ -95,12 +99,14 @@ public class HolidayServiceTest {
                 LocalDate today = LocalDate.now();
 
                 doReturn(List.of(
-                                new Holiday(today.minusDays(1), "H1"))).when(holidayService)
+                                new Holiday(today.minusDays(1), "H1")))
+                                .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
-                List<Holiday> result = holidayService.getLastHolidays("NL", 0);
+                LastHolidaysResponse response = holidayService.getLastHolidays("NL", 0);
 
-                assertTrue(result.isEmpty());
+                assertTrue(response.results().isEmpty());
+                assertEquals(0, response.count());
         }
 
         @Test
@@ -110,9 +116,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
-                List<Holiday> result = holidayService.getLastHolidays("NL", 3);
+                LastHolidaysResponse response = holidayService.getLastHolidays("NL", 3);
 
-                assertTrue(result.isEmpty());
+                assertTrue(response.results().isEmpty());
+                assertEquals(0, response.count());
         }
 
         @Test
