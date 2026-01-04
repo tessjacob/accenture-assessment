@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -58,7 +59,8 @@ public class HolidayControllerTest {
         private HolidayRequestValidator validator;
 
         @Test
-        void shouldReturnLastThreeHolidays_withDefaultCount() throws Exception {
+        @DisplayName("Should return last three holidays with default count.")
+        void shouldReturnLastThreeHolidaysWithDefaultCount() throws Exception {
 
                 LastHolidaysResponse response = new LastHolidaysResponse(
                                 "NL",
@@ -85,7 +87,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void shouldReturnLastTwoHolidays_whenCountIsTwo() throws Exception {
+        @DisplayName("Should return last two holidays when count is two.")
+        void shouldReturnLastTwoHolidaysWhenCountIsTwo() throws Exception {
 
                 LastHolidaysResponse response = new LastHolidaysResponse(
                                 "DE",
@@ -110,6 +113,7 @@ public class HolidayControllerTest {
         }
 
         @Test
+        @DisplayName("Should uppercase country code before calling service.")
         void shouldUppercaseCountryBeforeCallingService() throws Exception {
                 LastHolidaysResponse response = new LastHolidaysResponse(
                                 "FR",
@@ -128,7 +132,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void shouldReturn400_whenCountryCodeIsInvalid() throws Exception {
+        @DisplayName("Should return 400 when country code is invalid.")
+        void shouldReturn400WhenCountryCodeIsInvalid() throws Exception {
                 doThrow(new InvalidCountryCodeException("Invalid country code"))
                                 .when(validator).validateCountryCode("XXX");
 
@@ -137,7 +142,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void shouldReturn400_whenCountIsInvalid() throws Exception {
+        @DisplayName("Should return 400 when count is invalid.")
+        void shouldReturn400WhenCountIsInvalid() throws Exception {
                 doThrow(new InvalidRequestException("Invalid count"))
                                 .when(validator).resolveCount(5);
 
@@ -147,7 +153,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void returns_weekday_counts_for_multiple_countries() throws Exception {
+        @DisplayName("Should return weekday holiday counts for multiple countries.")
+        void shouldReturnsWeekdayCountsForMultipleCountries() throws Exception {
                 WeekdayHolidayCountsResponse response = new WeekdayHolidayCountsResponse(
                                 2024,
                                 List.of(
@@ -172,7 +179,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void applies_default_query_parameters() throws Exception {
+        @DisplayName("Applies default query parameters when not provided.")
+        void appliesDefaultQueryParameters() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
                                 anyInt(), anyList(), eq(true), eq("descending")))
                                 .thenReturn(new WeekdayHolidayCountsResponse(2024, List.of()));
@@ -187,7 +195,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void supports_custom_sort_and_weekend_flags() throws Exception {
+        @DisplayName("Supports custom sort and weekend flags.")
+        void supportsCustomSortAndWeekendFlags() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
                                 2024, List.of("DE"), false, "ascending"))
                                 .thenReturn(new WeekdayHolidayCountsResponse(2024, List.of()));
@@ -201,7 +210,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void returns_400_for_invalid_country_code() throws Exception {
+        @DisplayName("Should return 400 for invalid country code.")
+        void shouldReturns400ForInvalidCountryCode() throws Exception {
                 doThrow(new InvalidCountryCodeException())
                                 .when(validator).validateCountries(List.of("X1"));
 
@@ -212,7 +222,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void returns_400_for_future_year() throws Exception {
+        @DisplayName("Should return 400 for future year.")
+        void shouldReturns400ForFutureYear() throws Exception {
                 doThrow(new InvalidRequestException("Year cannot be in the future"))
                                 .when(validator).validateYear(2100);
 
@@ -223,7 +234,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void returns_503_when_external_service_is_unavailable() throws Exception {
+        @DisplayName("Should return 503 when external service is unavailable.")
+        void shouldReturns503WhenExternalServiceIsUnavailable() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
                                 anyInt(), anyList(), anyBoolean(), anyString()))
                                 .thenThrow(new ExternalServiceException("Nager API down"));
@@ -235,7 +247,8 @@ public class HolidayControllerTest {
         }
 
         @Test
-        void returns_500_for_unexpected_exception() throws Exception {
+        @DisplayName("Should return 500 for unexpected exception.")
+        void shouldReturns500ForUnexpectedException() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
                                 anyInt(), anyList(), anyBoolean(), anyString()))
                                 .thenThrow(new RuntimeException("Boom"));

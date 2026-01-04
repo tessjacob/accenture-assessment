@@ -57,10 +57,10 @@ public class HolidayController {
     @GetMapping("/weekday-counts")
     @Operation(summary = "Get weekday holiday counts for multiple countries in a given year.")
     public ResponseEntity<WeekdayHolidayCountsResponse> getWeekdayCounts(
-            @RequestParam int year,
-            @RequestParam List<String> countries,
-            @RequestParam(defaultValue = "true") boolean weekend,
-            @RequestParam(defaultValue = "descending") String sort)
+            @Parameter(description = "Year to get weekday holiday counts for", example = "2024") @RequestParam int year,
+            @Parameter(description = "List of ISO 3166-1 alpha-2 country codes", example = "NL,DE") @RequestParam List<String> countries,
+            @Parameter(description = "Include weekend holidays in the count", example = "true") @RequestParam(defaultValue = "true") boolean weekend,
+            @Parameter(description = "Sort order of the results", example = "descending") @RequestParam(defaultValue = "descending") String sort)
             throws IOException, InterruptedException {
 
         validator.validateYear(year);

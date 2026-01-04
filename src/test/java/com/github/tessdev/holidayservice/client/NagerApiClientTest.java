@@ -24,7 +24,7 @@ class NagerApiClientTest {
 
         @Test
         @DisplayName("getHolidays success returns list of holidays.")
-        void getHolidays_success_returnsList() throws Exception {
+        void getHolidaysSuccesseturnsList() throws Exception {
                 HttpClient mockClient = mock(HttpClient.class);
                 HttpResponse<String> mockResponse = mock(HttpResponse.class);
 
@@ -63,7 +63,7 @@ class NagerApiClientTest {
 
         @Test
         @DisplayName("getHolidays non-200 response throws ExternalServiceException.")
-        void getHolidays_non200_throwsExternalServiceException() throws Exception {
+        void getHolidaysNon200ThrowsExternalServiceException() throws Exception {
                 HttpClient mockClient = mock(HttpClient.class);
                 HttpResponse<String> mockResponse = mock(HttpResponse.class);
 
@@ -87,7 +87,7 @@ class NagerApiClientTest {
 
         @Test
         @DisplayName("getHolidays IOException throws ExternalServiceException.")
-        void getHolidays_ioException_throwsExternalServiceException() throws Exception {
+        void getHolidaysIOExceptionThrowsExternalServiceException() throws Exception {
                 HttpClient mockClient = mock(HttpClient.class);
 
                 when(mockClient.send(org.mockito.ArgumentMatchers.any(HttpRequest.class),
