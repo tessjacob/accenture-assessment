@@ -15,29 +15,39 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.github.tessdev.holidayservice.model.Holiday;
+import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
 import com.github.tessdev.holidayservice.service.HolidayService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class SecurityConfigTest {
 
-    @Autowired
-    MockMvc mockMvc;
+        @Autowired
+        MockMvc mockMvc;
 
-    @MockBean
-    HolidayService holidayService;
+        @MockBean
+        HolidayService holidayService;
 
-    @Test
-    @DisplayName("Endpoint is accessible without authentication.")
-    void endpointIsAccessibleWithoutAuth() throws Exception {
+        @Test
+        @DisplayName("Endpoint is accessible without authentication.")
+        void endpointIsAccessibleWithoutAuth() throws Exception {
 
-        when(holidayService.getLastHolidays("DE", 3))
-                .thenReturn(List.of(
-                        new Holiday("2024-10-03", "German Unity Day")));
+                // Create a LastHolidaysResponse with 3 holidays
+                LastHolidaysResponse response = new LastHolidaysResponse(
+                                "DE",
+                                List.of(
+                                                new Holiday("2024-10-03", "German Unity Day"),
+                                                new Holiday("2024-12-25", "Christmas Day"),
+                                                new Holiday("2024-01-01", "New Year's Day")),
+                                3 // total count
+                );
 
-        mockMvc.perform(
-                get("/api/holidays/last/DE")
-                        .param("count", "3"))
-                .andExpect(status().isOk());
-    }
+                // Mock the service to return the response
+                when(holidayService.getLastHolidays("DE", 3)).thenReturn(response);
+
+                // Perform GET request
+                mockMvc.perform(get("/api/holidays/last/DE")
+                                .param("count", "3"))
+                                .andExpect(status().isOk());
+        }
 }
