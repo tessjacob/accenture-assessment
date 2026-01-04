@@ -1,9 +1,9 @@
 package com.github.tessdev.holidayservice.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -36,6 +36,7 @@ import com.github.tessdev.holidayservice.exception.InvalidRequestException;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
+import com.github.tessdev.holidayservice.model.SortOrder;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 import com.github.tessdev.holidayservice.service.HolidayService;
 import com.github.tessdev.holidayservice.validation.HolidayRequestValidator;
@@ -165,7 +166,7 @@ public class HolidayControllerTest {
                                 eq(2024),
                                 eq(List.of("DE", "FR")),
                                 eq(true),
-                                eq("descending"))).thenReturn(response);
+                                eq(SortOrder.DESC))).thenReturn(response);
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")
                                 .param("year", "2024")
@@ -182,7 +183,7 @@ public class HolidayControllerTest {
         @DisplayName("Applies default query parameters when not provided.")
         void appliesDefaultQueryParameters() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
-                                anyInt(), anyList(), eq(true), eq("descending")))
+                                anyInt(), anyList(), eq(true), eq(SortOrder.DESC)))
                                 .thenReturn(new WeekdayHolidayCountsResponse(2024, List.of()));
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")
@@ -191,21 +192,21 @@ public class HolidayControllerTest {
                                 .andExpect(status().isOk());
 
                 verify(holidayService).getWeekdayHolidayCounts(
-                                2024, List.of("DE"), true, "descending");
+                                2024, List.of("DE"), true, SortOrder.DESC);
         }
 
         @Test
         @DisplayName("Supports custom sort and weekend flags.")
         void supportsCustomSortAndWeekendFlags() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
-                                2024, List.of("DE"), false, "ascending"))
+                                2024, List.of("DE"), false, SortOrder.ASC))
                                 .thenReturn(new WeekdayHolidayCountsResponse(2024, List.of()));
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")
                                 .param("year", "2024")
                                 .param("countries", "DE")
                                 .param("weekend", "false")
-                                .param("sort", "ascending"))
+                                .param("sort", SortOrder.ASC.name()))
                                 .andExpect(status().isOk());
         }
 
@@ -237,7 +238,7 @@ public class HolidayControllerTest {
         @DisplayName("Should return 503 when external service is unavailable.")
         void shouldReturns503WhenExternalServiceIsUnavailable() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
-                                anyInt(), anyList(), anyBoolean(), anyString()))
+                                anyInt(), anyList(), anyBoolean(), any(SortOrder.class)))
                                 .thenThrow(new ExternalServiceException("Nager API down"));
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")
@@ -250,7 +251,7 @@ public class HolidayControllerTest {
         @DisplayName("Should return 500 for unexpected exception.")
         void shouldReturns500ForUnexpectedException() throws Exception {
                 when(holidayService.getWeekdayHolidayCounts(
-                                anyInt(), anyList(), anyBoolean(), anyString()))
+                                anyInt(), anyList(), anyBoolean(), any(SortOrder.class)))
                                 .thenThrow(new RuntimeException("Boom"));
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")

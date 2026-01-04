@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
+import com.github.tessdev.holidayservice.model.SortOrder;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,7 +133,7 @@ public class HolidayServiceTest {
                 )).when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
-                                YEAR, List.of("DE"), true, "descending");
+                                YEAR, List.of("DE"), true, SortOrder.DESC);
 
                 assertThat(response.results()).hasSize(1);
                 assertThat(response.results().get(0).count()).isEqualTo(1);
@@ -146,7 +147,7 @@ public class HolidayServiceTest {
                                 LocalDate.of(2024, 1, 7))).when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
-                                YEAR, List.of("DE"), false, "descending");
+                                YEAR, List.of("DE"), false, SortOrder.DESC);
 
                 assertThat(response.results().get(0).count()).isEqualTo(2);
         }
@@ -162,7 +163,7 @@ public class HolidayServiceTest {
                                 LocalDate.of(2024, 1, 2))).when(holidayService).fetchHolidaysForYear("FR", YEAR);
 
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
-                                YEAR, List.of("DE", "FR"), true, "descending");
+                                YEAR, List.of("DE", "FR"), true, SortOrder.DESC);
 
                 assertThat(response.results())
                                 .extracting(HolidayCountResult::country)
@@ -186,7 +187,7 @@ public class HolidayServiceTest {
                                 LocalDate.of(2024, 1, 2))).when(holidayService).fetchHolidaysForYear("FR", YEAR);
 
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
-                                YEAR, List.of("DE", "FR"), true, "ascending");
+                                YEAR, List.of("DE", "FR"), true, SortOrder.ASC);
 
                 assertThat(response.results())
                                 .extracting(HolidayCountResult::country)
@@ -200,7 +201,7 @@ public class HolidayServiceTest {
                                 .when(holidayService).fetchHolidaysForYear("AQ", YEAR);
 
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
-                                YEAR, List.of("AQ"), true, "descending");
+                                YEAR, List.of("AQ"), true, SortOrder.DESC);
 
                 assertThat(response.results().get(0).count()).isZero();
         }
@@ -212,7 +213,7 @@ public class HolidayServiceTest {
                                 .when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
-                                YEAR, List.of("DE"), true, "descending");
+                                YEAR, List.of("DE"), true, SortOrder.DESC);
 
                 assertThat(response.results()).hasSize(1);
                 assertThat(response.results().get(0).country()).isEqualTo("DE");

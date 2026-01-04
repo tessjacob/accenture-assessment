@@ -2,9 +2,9 @@ package com.github.tessdev.holidayservice.cucumber.steps;
 
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.github.tessdev.holidayservice.cucumber.TestContext;
 import com.github.tessdev.holidayservice.exception.ExternalServiceException;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
+import com.github.tessdev.holidayservice.model.SortOrder;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 import com.github.tessdev.holidayservice.service.HolidayService;
 import com.jayway.jsonpath.JsonPath;
@@ -76,11 +77,11 @@ public class WeekdayHolidayCountsSteps {
         if (context.apiUnavailable) {
             doThrow(new ExternalServiceException("Nager", "https://date.nager.at"))
                     .when(holidayService)
-                    .getWeekdayHolidayCounts(anyInt(), anyList(), eq(false), anyString());
+                    .getWeekdayHolidayCounts(anyInt(), anyList(), eq(false), any(SortOrder.class));
         } else if (context.internalError) {
             doThrow(new RuntimeException("Boom"))
                     .when(holidayService)
-                    .getWeekdayHolidayCounts(anyInt(), anyList(), eq(false), anyString());
+                    .getWeekdayHolidayCounts(anyInt(), anyList(), eq(false), any(SortOrder.class));
         } else {
             List<HolidayCountResult> results = countries.stream()
                     .map(c -> new HolidayCountResult(c, c.equals("AQ") ? 0 : 5))
@@ -90,7 +91,7 @@ public class WeekdayHolidayCountsSteps {
                     eq(year),
                     eq(countries),
                     eq(false),
-                    eq("descending")))
+                    eq(SortOrder.DESC)))
                     .thenReturn(new WeekdayHolidayCountsResponse(year, results));
         }
 
@@ -100,7 +101,7 @@ public class WeekdayHolidayCountsSteps {
                             .param("year", String.valueOf(year))
                             .param("countries", countries.toArray(new String[0]))
                             .param("weekend", "false")
-                            .param("sort", "descending")
+                            .param("sort", SortOrder.DESC.name())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andReturn();
 
@@ -110,7 +111,7 @@ public class WeekdayHolidayCountsSteps {
                             .param("year", String.valueOf(year))
                             .param("countries", countries.toArray(new String[0]))
                             .param("weekend", "false")
-                            .param("sort", "descending")
+                            .param("sort", SortOrder.DESC.name())
                             .contentType(MediaType.APPLICATION_JSON));
 
             // Also store ResponseEntity in context for CommonHolidaySteps
@@ -180,11 +181,6 @@ public class WeekdayHolidayCountsSteps {
     public void no_weekend_holidays() {
         // Guaranteed by weekend=false + service contract
         // Explicit date checks belong to unit tests, not controller Cucumber tests
-    }
-
-    @Then("an error message should be returned")
-    public void an_error_message_should_be_returned() throws Exception {
-        response.andExpect(jsonPath("$.message").exists());
     }
 
     @Then("an error message should indicate invalid country codes")

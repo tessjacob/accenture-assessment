@@ -82,13 +82,13 @@ paths:
       parameters:
         - name: year
           in: query
-          description: The year for which the weekday holidays need to be retrived.
+          description: The year for which the weekday holidays need to be retrived.          
           style: form
           schema:
             type: integer
             format: int32
             example : 2025
-            
+
         - name: countries
           in: query
           description: A list of country codes (ISO 3166-1 alpha-2).
@@ -103,13 +103,21 @@ paths:
               pattern: "^[A-Z]{2}$"
               example: ["NL", "DE"]
 
+        - name: weekend
+          in: query
+          description: Sort order for results
+          schema:
+            type: boolean
+            default: true
+
         - name: sort
           in: query
           description: Sort order for results
           schema:
             type: string
-            enum: [count_desc, count_asc]
-            default: count_desc
+            enum: [DESC, ASC]
+            default: DESC
+
 
       responses:
         '200':

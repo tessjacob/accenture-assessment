@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.tessdev.holidayservice.exception.CountryNotSupportedException;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
+import com.github.tessdev.holidayservice.model.SortOrder;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 import com.github.tessdev.holidayservice.service.HolidayService;
 import com.github.tessdev.holidayservice.validation.HolidayRequestValidator;
@@ -60,12 +61,11 @@ public class HolidayController {
             @Parameter(description = "Year to get weekday holiday counts for", example = "2024") @RequestParam int year,
             @Parameter(description = "List of ISO 3166-1 alpha-2 country codes", example = "NL,DE") @RequestParam List<String> countries,
             @Parameter(description = "Include weekend holidays in the count", example = "true") @RequestParam(defaultValue = "true") boolean weekend,
-            @Parameter(description = "Sort order of the results", example = "descending") @RequestParam(defaultValue = "descending") String sort)
+            @Parameter(description = "Sort order of the results", example = "asc|desc") @RequestParam(defaultValue = "DESC") SortOrder sort)
             throws IOException, InterruptedException {
 
         validator.validateYear(year);
         validator.validateCountries(countries);
-        validator.validateSort(sort);
 
         return ResponseEntity.ok(holidayService.getWeekdayHolidayCounts(year, countries, weekend, sort));
     }

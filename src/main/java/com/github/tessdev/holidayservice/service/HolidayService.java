@@ -11,6 +11,7 @@ import com.github.tessdev.holidayservice.client.NagerApiClient;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
+import com.github.tessdev.holidayservice.model.SortOrder;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 
 @Service
@@ -43,7 +44,7 @@ public class HolidayService {
 
     public WeekdayHolidayCountsResponse getWeekdayHolidayCounts(int year,
             List<String> countries,
-            boolean excludeWeekend, String sort) {
+            boolean excludeWeekend, SortOrder sort) {
         List<HolidayCountResult> results = countries.stream()
                 .map(country -> {
                     int count = (int) fetchHolidaysForYear(country, year).stream()
@@ -52,7 +53,7 @@ public class HolidayService {
 
                     return new HolidayCountResult(country, count);
                 })
-                .sorted(getComparator(sort))
+                .sorted(sort.comparator())
                 .toList();
         return new WeekdayHolidayCountsResponse(year, results);
     }
@@ -60,14 +61,6 @@ public class HolidayService {
     private boolean isWeekend(LocalDate date) {
         DayOfWeek d = date.getDayOfWeek();
         return d == DayOfWeek.SATURDAY || d == DayOfWeek.SUNDAY;
-    }
-
-    private Comparator<HolidayCountResult> getComparator(String sort) {
-        Comparator<HolidayCountResult> comparator = Comparator.comparingInt(HolidayCountResult::count);
-
-        return "ascending".equalsIgnoreCase(sort)
-                ? comparator
-                : comparator.reversed();
     }
 
     public List<Holiday> getCommonHolidays(int year, String country1, String country2) {

@@ -40,14 +40,6 @@ public class HolidayRequestValidator {
         }
     }
 
-    public void validateSort(String sort) {
-        if (!"ascending".equalsIgnoreCase(sort)
-                && !"descending".equalsIgnoreCase(sort)) {
-            throw new InvalidRequestException(
-                    "Sort must be 'ascending' or 'descending'");
-        }
-    }
-
     public int resolveCount(Integer count) {
         if (count == null || count <= 0) {
             return DEFAULT_HOLIDAY_COUNT;
