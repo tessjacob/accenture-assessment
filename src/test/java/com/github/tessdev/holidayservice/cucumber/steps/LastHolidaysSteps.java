@@ -178,8 +178,8 @@ public class LastHolidaysSteps {
     public void the_response_should_be_the_same_as_for_country(String expectedCountry) throws Exception {
         JsonNode root = objectMapper.readTree(context.response.getBody());
         assertThat(root).isNotNull();
-        assertThat(root.get("countryCode")).isNotNull();
-        assertThat(root.get("countryCode").asText()).isEqualTo(expectedCountry.toUpperCase());
+        assertThat(root.get("country")).isNotNull();
+        assertThat(root.get("country").asText()).isEqualTo(expectedCountry.toUpperCase());
         assertThat(root.get("results")).isNotNull();
     }
 }

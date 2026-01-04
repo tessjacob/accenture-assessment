@@ -51,4 +51,10 @@ public class CommonHolidaySteps {
         JsonNode root = objectMapper.readTree(context.response.getBody());
         assertThat(root.get("code").asText()).isEqualTo(code);
     }
+
+    @Then("an error message should be returned")
+    public void an_error_message_should_be_returned() throws Exception {
+        JsonNode root = objectMapper.readTree(context.response.getBody());
+        assertThat(root.get("message").asText()).isNotEmpty();
+    }
 }
