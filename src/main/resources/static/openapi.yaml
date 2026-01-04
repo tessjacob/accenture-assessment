@@ -75,7 +75,7 @@ paths:
                 path: "/api/holidays/last/NL"
 
 
-  /api/holidays/non-weekday-counts:
+  /api/holidays/weekday-counts:
     get:
       summary: Get count of weekday holidays per country sorted in descending by count.
       description: Given a year and a list of country codes, returns the country and number of holidays that do not fall on weekends for each country for the given year, sorted in descending by count.

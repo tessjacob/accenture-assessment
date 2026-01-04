@@ -9,6 +9,11 @@ public class InvalidCountryCodeException extends RuntimeException {
         this.countryCode = countryCode;
     }
 
+    public InvalidCountryCodeException() {
+        super("Invalid country code.");
+        this.countryCode = "";
+    }
+
     public String getCountryCode() {
         return countryCode;
     }

@@ -1,14 +1,16 @@
 package com.github.tessdev.holidayservice.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.github.tessdev.holidayservice.client.NagerApiClient;
 import com.github.tessdev.holidayservice.model.Holiday;
+import com.github.tessdev.holidayservice.model.HolidayCountResult;
+import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 
 @Service
 public class HolidayService {
@@ -35,9 +37,33 @@ public class HolidayService {
                 .toList();
     }
 
-    public Map<String, Long> getWeekdayHolidayCounts(int year, List<String> countries) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getWeekdayHolidayCounts'");
+    public WeekdayHolidayCountsResponse getWeekdayHolidayCounts(int year,
+            List<String> countries,
+            boolean excludeWeekend, String sort) {
+        List<HolidayCountResult> results = countries.stream()
+                .map(country -> {
+                    int count = (int) fetchHolidaysForYear(country, year).stream()
+                            .filter(h -> !excludeWeekend || !isWeekend(h.date()))
+                            .count();
+
+                    return new HolidayCountResult(country, count);
+                })
+                .sorted(getComparator(sort))
+                .toList();
+        return new WeekdayHolidayCountsResponse(year, results);
+    }
+
+    private boolean isWeekend(LocalDate date) {
+        DayOfWeek d = date.getDayOfWeek();
+        return d == DayOfWeek.SATURDAY || d == DayOfWeek.SUNDAY;
+    }
+
+    private Comparator<HolidayCountResult> getComparator(String sort) {
+        Comparator<HolidayCountResult> comparator = Comparator.comparingInt(HolidayCountResult::count);
+
+        return "ascending".equalsIgnoreCase(sort)
+                ? comparator
+                : comparator.reversed();
     }
 
     public List<Holiday> getCommonHolidays(int year, String country1, String country2) {

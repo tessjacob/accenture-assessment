@@ -2,8 +2,8 @@ package com.github.tessdev.holidayservice.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +14,9 @@ import com.github.tessdev.holidayservice.exception.CountryNotSupportedException;
 import com.github.tessdev.holidayservice.exception.InvalidCountryCodeException;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
+import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
 import com.github.tessdev.holidayservice.service.HolidayService;
+import com.github.tessdev.holidayservice.validation.HolidayRequestValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,13 +30,15 @@ public class HolidayController {
     private static final int DEFAULT_HOLIDAY_COUNT = 3;
 
     private final HolidayService holidayService;
+    private final HolidayRequestValidator validator;
 
-    public HolidayController(HolidayService holidayService) {
+    public HolidayController(HolidayService holidayService, HolidayRequestValidator validator) {
         this.holidayService = holidayService;
+        this.validator = validator;
     }
 
     @GetMapping("/last/{country}")
-    @Operation(summary = "Last 3 celebrated holidays for a country")
+    @Operation(summary = "Last 3 celebrated holidays for a country.")
     public LastHolidaysResponse getLastHolidays(
             @Parameter(description = "ISO 3166-1 alpha-2 country code", example = "NL") @PathVariable String country,
             @Parameter(description = "Maximum number of holidays to return (0–3)", example = "3") @RequestParam(value = "count", defaultValue = "3") Integer count)
@@ -74,10 +78,20 @@ public class HolidayController {
         }
     }
 
-    @GetMapping("/non-weekday-counts")
-    public Map<String, Long> getWeekdayCounts(@RequestParam int year, @RequestParam List<String> countries)
+    @GetMapping("/weekday-counts")
+    @Operation(summary = "Get weekday holiday counts for multiple countries in a given year.")
+    public ResponseEntity<WeekdayHolidayCountsResponse> getWeekdayCounts(
+            @RequestParam int year,
+            @RequestParam List<String> countries,
+            @RequestParam(defaultValue = "true") boolean weekend,
+            @RequestParam(defaultValue = "descending") String sort)
             throws IOException, InterruptedException {
-        return holidayService.getWeekdayHolidayCounts(year, countries);
+
+        validator.validateYear(year);
+        validator.validateCountries(countries);
+        validator.validateSort(sort);
+
+        return ResponseEntity.ok(holidayService.getWeekdayHolidayCounts(year, countries, weekend, sort));
     }
 
     @GetMapping("/common")
