@@ -161,6 +161,37 @@ public class HolidayControllerTest {
         }
 
         @Test
+        @DisplayName("Should return 404 when country is not supported (no holidays found).")
+        void shouldReturn404WhenCountryNotSupported() throws Exception {
+
+                when(validator.resolveCount(3)).thenReturn(3);
+                when(holidayService.getLastHolidays("ZZ", 3))
+                                .thenReturn(new LastHolidaysResponse("ZZ", List.of(), 0));
+
+                mockMvc.perform(get("/api/holidays/last/{country}", "ZZ"))
+                                .andExpect(status().isBadRequest());
+
+                verify(validator).validateCountryCode("ZZ");
+                verify(holidayService).getLastHolidays("ZZ", 3);
+        }
+
+        @Test
+        @DisplayName("validateCountryCode is called before service invocation.")
+        void validateCountryCodeCalledBeforeService() throws Exception {
+
+                when(validator.resolveCount(1)).thenReturn(1);
+                when(holidayService.getLastHolidays("NL", 1))
+                                .thenReturn(new LastHolidaysResponse("NL", List.of(
+                                                new Holiday(LocalDate.now().minusDays(1), "Test")), 1));
+
+                mockMvc.perform(get("/api/holidays/last/NL").param("count", "1"))
+                                .andExpect(status().isOk());
+
+                verify(validator).validateCountryCode("NL");
+                verify(holidayService).getLastHolidays("NL", 1);
+        }
+
+        @Test
         @DisplayName("Should return weekday holiday counts for multiple countries.")
         void shouldReturnsWeekdayCountsForMultipleCountries() throws Exception {
                 WeekdayHolidayCountsResponse response = new WeekdayHolidayCountsResponse(
@@ -268,6 +299,23 @@ public class HolidayControllerTest {
         }
 
         @Test
+        @DisplayName("Validator methods are invoked for valid weekday-counts request.")
+        void validatesWeekdayCountsInputs() throws Exception {
+
+                when(holidayService.getWeekdayHolidayCounts(
+                                2024, List.of("DE"), true, SortOrder.DESC))
+                                .thenReturn(new WeekdayHolidayCountsResponse(2024, List.of()));
+
+                mockMvc.perform(get("/api/holidays/weekday-counts")
+                                .param("year", "2024")
+                                .param("countries", "DE"))
+                                .andExpect(status().isOk());
+
+                verify(validator).validateYear(2024);
+                verify(validator).validateCountryCodes(List.of("DE"));
+        }
+
+        @Test
         @DisplayName("Should return common holidays for valid request")
         void shouldReturnCommonHolidays() throws Exception {
                 CommonHolidaysResponse response = new CommonHolidaysResponse(
@@ -339,5 +387,25 @@ public class HolidayControllerTest {
                                 .param("country1", "NL")
                                 .param("country2", "DE"))
                                 .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        @DisplayName("Should return 200 with empty list when no common holidays exist.")
+        void shouldReturnEmptyCommonHolidays() throws Exception {
+
+                when(holidayService.getCommonHolidays(2024, "NL", "FR"))
+                                .thenReturn(new CommonHolidaysResponse(2024, List.of()));
+
+                mockMvc.perform(get(COMMON_HOLIDAYS_ENDPOINT)
+                                .param("year", "2024")
+                                .param("country1", "NL")
+                                .param("country2", "FR"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.results").isArray())
+                                .andExpect(jsonPath("$.results.length()").value(0));
+
+                verify(validator).validateYear(2024);
+                verify(validator).validateCountryCode("NL");
+                verify(validator).validateCountryCode("FR");
         }
 }

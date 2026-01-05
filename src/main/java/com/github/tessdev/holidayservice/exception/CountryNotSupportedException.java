@@ -1,16 +1,17 @@
 package com.github.tessdev.holidayservice.exception;
 
-public class CountryNotSupportedException extends RuntimeException {
+import java.util.Map;
 
-    private final String countryCode;
+import org.springframework.http.HttpStatus;
+
+public class CountryNotSupportedException extends HolidayServiceException {
 
     public CountryNotSupportedException(String countryCode) {
-        super("Country not supported: " + countryCode);
-        this.countryCode = countryCode;
-    }
-
-    public String getCountryCode() {
-        return countryCode;
+        super(
+                "COUNTRY_NOT_SUPPORTED",
+                "Country not supported: " + countryCode,
+                HttpStatus.BAD_REQUEST,
+                Map.of("countryCode", countryCode));
     }
 
 }
