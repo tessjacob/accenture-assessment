@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,10 +27,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class LastHolidaysSteps {
-
-    @Autowired
-    private MockMvc mockMvc;
-
     @Autowired
     private TestContext context;
 

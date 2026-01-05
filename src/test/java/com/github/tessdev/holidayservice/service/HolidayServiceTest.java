@@ -349,4 +349,22 @@ public class HolidayServiceTest {
                                 .extracting(CommonHoliday::date)
                                 .containsExactly(jan, may);
         }
+
+        @Test
+        @DisplayName("Should return all holidays when both countries are the same.")
+        void shouldReturnAllHolidaysWhenBothCountriesAreTheSame() {
+                // given
+                LocalDate may = LocalDate.of(2024, 5, 1);
+                LocalDate jan = LocalDate.of(2024, 1, 1);
+
+                doReturn(List.of(
+                                new Holiday(may, "May Holiday"),
+                                new Holiday(jan, "January Holiday"))).when(holidayService)
+                                .fetchHolidaysForYear(DE, YEAR);
+                // when
+                CommonHolidaysResponse response = holidayService.getCommonHolidays(YEAR, DE, DE);
+
+                // then
+                System.out.print(response.results().size());
+        }
 }

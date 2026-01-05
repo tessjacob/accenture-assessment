@@ -47,7 +47,6 @@ public class WeekdayHolidayCountsSteps {
     @Autowired
     private HolidayService holidayService;
 
-    private int year;
     private List<String> countries = new ArrayList<>();
     private ResultActions response;
 
@@ -55,11 +54,6 @@ public class WeekdayHolidayCountsSteps {
     @Given("the public holidays data is retrieved from the Nager public holidays API")
     public void public_holidays_data_is_retrieved() {
         // No-op: default behavior mocked per scenario
-    }
-
-    @Given("the year is {int}")
-    public void the_year_is(Integer year) {
-        this.year = year;
     }
 
     @Given("the country codes are:")
@@ -88,17 +82,17 @@ public class WeekdayHolidayCountsSteps {
                     .toList();
 
             when(holidayService.getWeekdayHolidayCounts(
-                    eq(year),
+                    eq(context.year),
                     eq(countries),
                     eq(false),
                     eq(SortOrder.DESC)))
-                    .thenReturn(new WeekdayHolidayCountsResponse(year, results));
+                    .thenReturn(new WeekdayHolidayCountsResponse(context.year, results));
         }
 
         try {
             MvcResult mvcResult = mockMvc.perform(
                     get("/api/holidays/weekday-counts")
-                            .param("year", String.valueOf(year))
+                            .param("year", String.valueOf(context.year))
                             .param("countries", countries.toArray(new String[0]))
                             .param("weekend", "false")
                             .param("sort", SortOrder.DESC.name())
@@ -108,7 +102,7 @@ public class WeekdayHolidayCountsSteps {
             // Assign ResultActions for happy-path
             response = mockMvc.perform(
                     get("/api/holidays/weekday-counts")
-                            .param("year", String.valueOf(year))
+                            .param("year", String.valueOf(context.year))
                             .param("countries", countries.toArray(new String[0]))
                             .param("weekend", "false")
                             .param("sort", SortOrder.DESC.name())

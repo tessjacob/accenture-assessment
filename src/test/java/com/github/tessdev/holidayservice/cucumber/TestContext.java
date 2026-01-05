@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class TestContext {
     public String countryCode;
     public ResponseEntity<String> response;
-    public boolean nagerApiDown = false;
+    public int year;
 
     // Shared flags
     public boolean apiUnavailable = false;

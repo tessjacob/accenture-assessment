@@ -75,5 +75,5 @@ Scenario: Local names are preserved per country
   Then the response status should be 200
   And each holiday date should contain:
     | country | localName |
-    | DE      | not empty |
-    | FR      | not empty |  
+    | DE      | DE Holiday |
+    | FR      | FR Holiday |  

@@ -7,16 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tessdev.holidayservice.cucumber.TestContext;
-import com.github.tessdev.holidayservice.service.HolidayService;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
 public class CommonHolidaySteps {
-
-    @Autowired
-    private HolidayService holidayService;
-
     @Autowired
     private TestContext context;
 
@@ -32,6 +27,11 @@ public class CommonHolidaySteps {
     @Given("an unexpected internal error occurs")
     public void set_internal_error() {
         context.internalError = true;
+    }
+
+    @Given("the year is {int}")
+    public void the_year_is(Integer year) {
+        context.year = year;
     }
 
     /* ---------- Then ---------- */
