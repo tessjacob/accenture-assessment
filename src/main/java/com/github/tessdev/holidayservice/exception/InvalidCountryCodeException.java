@@ -1,20 +1,17 @@
 package com.github.tessdev.holidayservice.exception;
 
-public class InvalidCountryCodeException extends RuntimeException {
+import java.util.Map;
 
-    private final String countryCode;
+import org.springframework.http.HttpStatus;
+
+public class InvalidCountryCodeException extends HolidayServiceException {
 
     public InvalidCountryCodeException(String countryCode) {
-        super("Invalid country code: " + countryCode);
-        this.countryCode = countryCode;
-    }
-
-    public InvalidCountryCodeException() {
-        super("Invalid country code.");
-        this.countryCode = "";
-    }
-
-    public String getCountryCode() {
-        return countryCode;
+        super(
+                "INVALID_COUNTRY_CODE",
+                "Country code must be a valid ISO 3166-1 alpha-2 code: " + countryCode,
+                HttpStatus.BAD_REQUEST,
+                Map.of("countryCode", countryCode) // example details
+        );
     }
 }

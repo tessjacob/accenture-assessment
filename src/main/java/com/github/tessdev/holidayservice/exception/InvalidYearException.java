@@ -1,8 +1,15 @@
 package com.github.tessdev.holidayservice.exception;
 
-public class InvalidYearException extends RuntimeException {
-    public InvalidYearException(String messageString) {
-        super(messageString);
-    }
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+
+public class InvalidYearException extends HolidayServiceException {
+    public InvalidYearException(int year) {
+        super(
+                "INVALID_YEAR",
+                "Year cannot be in the future: " + year,
+                HttpStatus.BAD_REQUEST,
+                Map.of("year", year));
+    }
 }

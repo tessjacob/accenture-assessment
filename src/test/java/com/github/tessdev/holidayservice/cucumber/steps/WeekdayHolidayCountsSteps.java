@@ -69,7 +69,7 @@ public class WeekdayHolidayCountsSteps {
     public void i_request_the_holiday_counts_excluding_weekends() throws Exception {
 
         if (context.apiUnavailable) {
-            doThrow(new ExternalServiceException("Nager", "https://date.nager.at"))
+            doThrow(new ExternalServiceException("https://date.nager.at"))
                     .when(holidayService)
                     .getWeekdayHolidayCounts(anyInt(), anyList(), eq(false), any(SortOrder.class));
         } else if (context.internalError) {

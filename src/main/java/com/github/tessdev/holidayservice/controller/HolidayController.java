@@ -65,7 +65,7 @@ public class HolidayController {
             throws IOException, InterruptedException {
 
         validator.validateYear(year);
-        validator.validateCountries(countries);
+        validator.validateCountryCodes(countries);
 
         return ResponseEntity.ok(holidayService.getWeekdayHolidayCounts(year, countries, weekend, sort));
     }

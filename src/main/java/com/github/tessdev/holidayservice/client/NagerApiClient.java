@@ -36,17 +36,12 @@ public class NagerApiClient {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                throw new ExternalServiceException(
-                        "Nager.Date API returned status code: " + response.statusCode(),
-                        BASE_URL);
+                throw new ExternalServiceException(BASE_URL);
             }
 
             return List.of(objectMapper.readValue(response.body(), Holiday[].class));
         } catch (IOException | InterruptedException e) {
-            throw new ExternalServiceException(
-                    "Failed to fetch holidays from Nager.Date API",
-                    "https://date.nager.at/Api/v3",
-                    e);
+            throw new ExternalServiceException("https://date.nager.at/Api/v3");
         }
     }
 }

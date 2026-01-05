@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.github.tessdev.holidayservice.exception.InvalidCountException;
 import com.github.tessdev.holidayservice.exception.InvalidCountryCodeException;
-import com.github.tessdev.holidayservice.exception.InvalidRequestException;
 import com.github.tessdev.holidayservice.exception.InvalidYearException;
 
 @Component
@@ -19,24 +19,29 @@ public class HolidayRequestValidator {
         int currentYear = Year.now().getValue();
 
         if (year < MIN_YEAR) {
-            throw new InvalidYearException("Year must be >= " + MIN_YEAR);
+            throw new InvalidYearException(MIN_YEAR);
         }
 
         if (year > currentYear) {
-            throw new InvalidYearException("Year cannot be in the future");
+            throw new InvalidYearException(currentYear);
         }
     }
 
-    public void validateCountries(List<String> countries) {
+    public void validateCountryCodes(List<String> countries) {
         if (countries == null || countries.isEmpty()) {
-            throw new InvalidCountryCodeException("At least one country code must be provided");
+            throw new InvalidCountryCodeException("At least one country code is required.");
         }
 
-        boolean hasInvalid = countries.stream()
-                .anyMatch(c -> c == null || !c.matches("^[A-Z]{2}$"));
+        // Collect all invalid country codes, including null values
+        List<String> invalidCountries = countries.stream()
+                .map(c -> c == null ? "null" : c) // convert null to string
+                .filter(c -> !c.matches("^[A-Z]{2}$"))
+                .toList();
 
-        if (hasInvalid) {
-            throw new InvalidCountryCodeException();
+        if (!invalidCountries.isEmpty()) {
+            // Join invalid codes into a single string
+            String invalidCodes = String.join(", ", invalidCountries);
+            throw new InvalidCountryCodeException(invalidCodes);
         }
     }
 
@@ -46,14 +51,12 @@ public class HolidayRequestValidator {
         }
 
         if (count > 3) {
-            throw new InvalidRequestException("Count must be between 0 and 3");
+            throw new InvalidCountException("Count must be between 0 and 3");
         }
         return count;
     }
 
     public void validateCountryCode(String country) {
-        if (country == null || !country.matches("^[A-Za-z]{2}$")) {
-            throw new InvalidCountryCodeException(country);
-        }
+        validateCountryCodes(List.of(country));
     }
 }

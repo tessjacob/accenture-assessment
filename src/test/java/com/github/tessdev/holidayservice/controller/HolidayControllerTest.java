@@ -33,8 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.github.tessdev.holidayservice.exception.ExternalServiceException;
 import com.github.tessdev.holidayservice.exception.GlobalExceptionHandler;
+import com.github.tessdev.holidayservice.exception.InvalidCountException;
 import com.github.tessdev.holidayservice.exception.InvalidCountryCodeException;
-import com.github.tessdev.holidayservice.exception.InvalidRequestException;
 import com.github.tessdev.holidayservice.exception.InvalidYearException;
 import com.github.tessdev.holidayservice.model.CommonHoliday;
 import com.github.tessdev.holidayservice.model.CommonHolidaysResponse;
@@ -152,7 +152,7 @@ public class HolidayControllerTest {
         @Test
         @DisplayName("Should return 400 when count is invalid.")
         void shouldReturn400WhenCountIsInvalid() throws Exception {
-                doThrow(new InvalidRequestException("Invalid count"))
+                doThrow(new InvalidCountException("Invalid count"))
                                 .when(validator).resolveCount(5);
 
                 mockMvc.perform(get("/api/holidays/last/{country}", "NL")
@@ -220,8 +220,8 @@ public class HolidayControllerTest {
         @Test
         @DisplayName("Should return 400 for invalid country code.")
         void shouldReturns400ForInvalidCountryCode() throws Exception {
-                doThrow(new InvalidCountryCodeException())
-                                .when(validator).validateCountries(List.of("X1"));
+                doThrow(new InvalidCountryCodeException("X1"))
+                                .when(validator).validateCountryCodes(List.of("X1"));
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")
                                 .param("year", "2024")
@@ -232,7 +232,7 @@ public class HolidayControllerTest {
         @Test
         @DisplayName("Should return 400 for future year.")
         void shouldReturns400ForFutureYear() throws Exception {
-                doThrow(new InvalidRequestException("Year cannot be in the future"))
+                doThrow(new InvalidCountException("Year cannot be in the future"))
                                 .when(validator).validateYear(2100);
 
                 mockMvc.perform(get("/api/holidays/weekday-counts")
@@ -316,7 +316,7 @@ public class HolidayControllerTest {
         @Test
         @DisplayName("Should return 400 for invalid year")
         void shouldReturn400ForInvalidYear() throws Exception {
-                doThrow(new InvalidYearException("Invalid year"))
+                doThrow(new InvalidYearException(3000))
                                 .when(validator).validateYear(3000);
 
                 mockMvc.perform(get(COMMON_HOLIDAYS_ENDPOINT)

@@ -82,7 +82,7 @@ class NagerApiClientTest {
                                 () -> client.getHolidays(2025, "US"));
 
                 // message should contain status code
-                assertEquals(true, ex.getMessage().contains("returned status code"));
+                assertEquals(true, ex.getMessage().contains("External service temporarily unavailable"));
         }
 
         @Test
