@@ -19,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.github.tessdev.holidayservice.model.CommonHoliday;
+import com.github.tessdev.holidayservice.model.CommonHolidaysResponse;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
@@ -33,10 +35,13 @@ public class HolidayServiceTest {
         private HolidayService holidayService;
 
         private static final int YEAR = 2024;
+        private static final String DE = "DE";
+        private static final String FR = "FR";
 
         @Test
         @DisplayName("Should return only celebrated holidays.")
         void shouldReturnOnlyCelebratedHolidays() {
+                // given
                 LocalDate today = LocalDate.now();
 
                 List<Holiday> input = List.of(
@@ -48,8 +53,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
+                // when
                 LastHolidaysResponse response = holidayService.getLastHolidays("NL", 3);
 
+                // then
                 assertEquals(2, response.results().size());
                 assertTrue(response.results().stream().allMatch(h -> h.date().isBefore(today)));
                 assertEquals(2, response.count());
@@ -59,6 +66,7 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should sort holidays by date descending.")
         void shouldSortHolidaysByDateDescending() {
+                // given
                 LocalDate today = LocalDate.now();
 
                 Holiday older = new Holiday(today.minusDays(20), "Older");
@@ -68,8 +76,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
+                // when
                 LastHolidaysResponse response = holidayService.getLastHolidays("NL", 5);
 
+                // then
                 assertEquals("Newer", response.results().get(0).name());
                 assertEquals("Older", response.results().get(1).name());
         }
@@ -77,6 +87,7 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should limit number of results.")
         void shouldLimitNumberOfResults() {
+                // given
                 LocalDate today = LocalDate.now();
 
                 List<Holiday> input = List.of(
@@ -88,8 +99,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
+                // when
                 LastHolidaysResponse response = holidayService.getLastHolidays("NL", 2);
 
+                // then
                 assertEquals(2, response.results().size());
                 assertEquals(2, response.count());
         }
@@ -97,6 +110,7 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should return empty list when limit is zero.")
         void shouldReturnEmptyListWhenLimitIsZero() {
+                // given
                 LocalDate today = LocalDate.now();
 
                 doReturn(List.of(
@@ -104,8 +118,10 @@ public class HolidayServiceTest {
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
+                // when
                 LastHolidaysResponse response = holidayService.getLastHolidays("NL", 0);
 
+                // then
                 assertTrue(response.results().isEmpty());
                 assertEquals(0, response.count());
         }
@@ -113,12 +129,15 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should return empty list when no holidays exist.")
         void shouldReturnEmptyListWhenNoHolidaysExist() {
+                // given
                 doReturn(List.of())
                                 .when(holidayService)
                                 .fetchHolidaysForYear(eq("NL"), anyInt());
 
+                // when
                 LastHolidaysResponse response = holidayService.getLastHolidays("NL", 3);
 
+                // then
                 assertTrue(response.results().isEmpty());
                 assertEquals(0, response.count());
         }
@@ -126,15 +145,18 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should exclude weekend holidays when flag is true.")
         void excludesWeekendHolidaysWhenFlagIsTrue() {
+                // given
                 doReturn(holidays(
                                 LocalDate.of(2024, 1, 1), // Monday
                                 LocalDate.of(2024, 1, 6), // Saturday
                                 LocalDate.of(2024, 1, 7) // Sunday
                 )).when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
+                // when
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
                                 YEAR, List.of("DE"), true, SortOrder.DESC);
 
+                // then
                 assertThat(response.results()).hasSize(1);
                 assertThat(response.results().get(0).count()).isEqualTo(1);
         }
@@ -142,19 +164,23 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should include weekend holidays when flag is false.")
         void includesWeekendHolidaysWhenFlagIsFalse() {
+                // given
                 doReturn(holidays(
                                 LocalDate.of(2024, 1, 6),
                                 LocalDate.of(2024, 1, 7))).when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
+                // when
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
                                 YEAR, List.of("DE"), false, SortOrder.DESC);
 
+                // then
                 assertThat(response.results().get(0).count()).isEqualTo(2);
         }
 
         @Test
         @DisplayName("Should sort results by count ascending.")
         void sortsResultsByCountAscending() {
+                // given
                 doReturn(holidays(LocalDate.of(2024, 1, 1)))
                                 .when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
@@ -162,9 +188,11 @@ public class HolidayServiceTest {
                                 LocalDate.of(2024, 1, 1),
                                 LocalDate.of(2024, 1, 2))).when(holidayService).fetchHolidaysForYear("FR", YEAR);
 
+                // when
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
                                 YEAR, List.of("DE", "FR"), true, SortOrder.DESC);
 
+                // then
                 assertThat(response.results())
                                 .extracting(HolidayCountResult::country)
                                 .containsExactly("FR", "DE");
@@ -179,16 +207,18 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Should sort results by count ascending when requested.")
         void sortsResultsByCountAscendingWhenRequested() {
+                // given
                 doReturn(holidays(LocalDate.of(2024, 1, 1)))
                                 .when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
                 doReturn(holidays(
                                 LocalDate.of(2024, 1, 1),
                                 LocalDate.of(2024, 1, 2))).when(holidayService).fetchHolidaysForYear("FR", YEAR);
-
+                // when
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
                                 YEAR, List.of("DE", "FR"), true, SortOrder.ASC);
 
+                // then
                 assertThat(response.results())
                                 .extracting(HolidayCountResult::country)
                                 .containsExactly("DE", "FR");
@@ -197,25 +227,126 @@ public class HolidayServiceTest {
         @Test
         @DisplayName("Country with no holidays returns zero count.")
         void countryWithNoHolidaysReturnsZero() {
+                // given
                 doReturn(List.of())
                                 .when(holidayService).fetchHolidaysForYear("AQ", YEAR);
 
+                // when
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
                                 YEAR, List.of("AQ"), true, SortOrder.DESC);
 
+                // then
                 assertThat(response.results().get(0).count()).isZero();
         }
 
         @Test
         @DisplayName("Supports single country request.")
         void supportsSingleCountryRequest() {
+                // given
                 doReturn(holidays(LocalDate.of(2024, 12, 25)))
                                 .when(holidayService).fetchHolidaysForYear("DE", YEAR);
 
+                // when
                 WeekdayHolidayCountsResponse response = holidayService.getWeekdayHolidayCounts(
                                 YEAR, List.of("DE"), true, SortOrder.DESC);
 
+                // then
                 assertThat(response.results()).hasSize(1);
                 assertThat(response.results().get(0).country()).isEqualTo("DE");
+        }
+
+        @Test
+        @DisplayName("Should return common holidays between two countries.")
+        void shouldReturnCommonHolidays() {
+                // given
+                LocalDate date = LocalDate.of(2024, 5, 1);
+
+                List<Holiday> deHolidays = List.of(
+                                new Holiday(date, "Tag der Arbeit"),
+                                new Holiday(LocalDate.of(2024, 10, 3), "German Unity Day"));
+
+                List<Holiday> frHolidays = List.of(
+                                new Holiday(date, "Fête du Travail"));
+
+                doReturn(deHolidays).when(holidayService).fetchHolidaysForYear(DE, YEAR);
+                doReturn(frHolidays).when(holidayService).fetchHolidaysForYear(FR, YEAR);
+
+                // when
+                CommonHolidaysResponse response = holidayService.getCommonHolidays(YEAR, DE, FR);
+
+                // then
+                assertThat(response.year()).isEqualTo(YEAR);
+                assertThat(response.results()).hasSize(1);
+
+                CommonHoliday holiday = response.results().get(0);
+                assertThat(holiday.date()).isEqualTo(date);
+                assertThat(holiday.localNames())
+                                .containsEntry(DE, "Tag der Arbeit")
+                                .containsEntry(FR, "Fête du Travail");
+        }
+
+        @Test
+        @DisplayName("Should return empty list when no common holidays exist.")
+        void shouldReturnEmptyListWhenNoCommonHolidays() {
+                // given
+                doReturn(List.of(
+                                new Holiday(LocalDate.of(2024, 1, 1), "Neujahr"))).when(holidayService)
+                                .fetchHolidaysForYear(DE, YEAR);
+
+                doReturn(List.of(
+                                new Holiday(LocalDate.of(2024, 2, 2), "Chandeleur"))).when(holidayService)
+                                .fetchHolidaysForYear(FR, YEAR);
+
+                // when
+                CommonHolidaysResponse response = holidayService.getCommonHolidays(YEAR, DE, FR);
+
+                // then
+                assertThat(response.results()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Should deduplicate holidays by date.")
+        void shouldDeduplicateHolidaysByDate() {
+                // given
+                LocalDate date = LocalDate.of(2024, 5, 1);
+
+                doReturn(List.of(
+                                new Holiday(date, "Tag der Arbeit"),
+                                new Holiday(date, "Duplicate Entry"))).when(holidayService)
+                                .fetchHolidaysForYear(DE, YEAR);
+
+                doReturn(List.of(
+                                new Holiday(date, "Fête du Travail"))).when(holidayService)
+                                .fetchHolidaysForYear(FR, YEAR);
+
+                // when
+                CommonHolidaysResponse response = holidayService.getCommonHolidays(YEAR, DE, FR);
+
+                // then
+                assertThat(response.results()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("Should sort results by date ascending.")
+        void shouldSortResultsByDateAscending() {
+                // given
+                LocalDate may = LocalDate.of(2024, 5, 1);
+                LocalDate jan = LocalDate.of(2024, 1, 1);
+
+                doReturn(List.of(
+                                new Holiday(may, "May Holiday"),
+                                new Holiday(jan, "January Holiday"))).when(holidayService)
+                                .fetchHolidaysForYear(DE, YEAR);
+
+                doReturn(List.of(
+                                new Holiday(may, "FR May"),
+                                new Holiday(jan, "FR Jan"))).when(holidayService).fetchHolidaysForYear(FR, YEAR);
+                // when
+                CommonHolidaysResponse response = holidayService.getCommonHolidays(YEAR, DE, FR);
+
+                // then
+                assertThat(response.results())
+                                .extracting(CommonHoliday::date)
+                                .containsExactly(jan, may);
         }
 }

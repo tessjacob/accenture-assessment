@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,9 @@ import com.github.tessdev.holidayservice.exception.ExternalServiceException;
 import com.github.tessdev.holidayservice.exception.GlobalExceptionHandler;
 import com.github.tessdev.holidayservice.exception.InvalidCountryCodeException;
 import com.github.tessdev.holidayservice.exception.InvalidRequestException;
+import com.github.tessdev.holidayservice.exception.InvalidYearException;
+import com.github.tessdev.holidayservice.model.CommonHoliday;
+import com.github.tessdev.holidayservice.model.CommonHolidaysResponse;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
@@ -58,6 +63,8 @@ public class HolidayControllerTest {
 
         @MockBean
         private HolidayRequestValidator validator;
+
+        private static final String COMMON_HOLIDAYS_ENDPOINT = "/api/holidays/common";
 
         @Test
         @DisplayName("Should return last three holidays with default count.")
@@ -257,6 +264,80 @@ public class HolidayControllerTest {
                 mockMvc.perform(get("/api/holidays/weekday-counts")
                                 .param("year", "2024")
                                 .param("countries", "DE"))
+                                .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        @DisplayName("Should return common holidays for valid request")
+        void shouldReturnCommonHolidays() throws Exception {
+                CommonHolidaysResponse response = new CommonHolidaysResponse(
+                                2024,
+                                List.of(
+                                                new CommonHoliday(
+                                                                LocalDate.of(2024, 5, 1),
+                                                                Map.of(
+                                                                                "NL", "Dag van de Arbeid",
+                                                                                "DE", "Tag der Arbeit"))));
+
+                when(holidayService.getCommonHolidays(2024, "NL", "DE"))
+                                .thenReturn(response);
+
+                mockMvc.perform(get(COMMON_HOLIDAYS_ENDPOINT)
+                                .param("year", "2024")
+                                .param("country1", "NL")
+                                .param("country2", "DE"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.year").value(2024))
+                                .andExpect(jsonPath("$.results").isArray())
+                                .andExpect(jsonPath("$.results[0].date").value("2024-05-01"))
+                                .andExpect(jsonPath("$.results[0].localNames.NL").value("Dag van de Arbeid"))
+                                .andExpect(jsonPath("$.results[0].localNames.DE").value("Tag der Arbeit"));
+
+                verify(validator).validateYear(2024);
+                verify(validator).validateCountryCode("NL");
+                verify(validator).validateCountryCode("DE");
+        }
+
+        @Test
+        @DisplayName("Should return 400 for invalid country code")
+        void shouldReturn400ForInvalidCountry() throws Exception {
+                doThrow(new InvalidCountryCodeException("Invalid country code"))
+                                .when(validator).validateCountryCode("XX");
+
+                mockMvc.perform(get(COMMON_HOLIDAYS_ENDPOINT)
+                                .param("year", "2024")
+                                .param("country1", "XX")
+                                .param("country2", "DE"))
+                                .andExpect(status().isBadRequest());
+
+                verify(holidayService, never()).getCommonHolidays(anyInt(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should return 400 for invalid year")
+        void shouldReturn400ForInvalidYear() throws Exception {
+                doThrow(new InvalidYearException("Invalid year"))
+                                .when(validator).validateYear(3000);
+
+                mockMvc.perform(get(COMMON_HOLIDAYS_ENDPOINT)
+                                .param("year", "3000")
+                                .param("country1", "NL")
+                                .param("country2", "DE"))
+                                .andExpect(status().isBadRequest());
+
+                verify(holidayService, never()).getCommonHolidays(anyInt(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should return 500 for unexpected exception")
+        void shouldReturn500ForUnexpectedException() throws Exception {
+                when(holidayService.getCommonHolidays(anyInt(), any(), any()))
+                                .thenThrow(new RuntimeException("Boom"));
+
+                mockMvc.perform(get(COMMON_HOLIDAYS_ENDPOINT)
+                                .param("year", "2024")
+                                .param("country1", "NL")
+                                .param("country2", "DE"))
                                 .andExpect(status().isInternalServerError());
         }
 }

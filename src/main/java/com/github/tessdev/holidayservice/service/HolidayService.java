@@ -3,11 +3,16 @@ package com.github.tessdev.holidayservice.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.github.tessdev.holidayservice.client.NagerApiClient;
+import com.github.tessdev.holidayservice.model.CommonHoliday;
+import com.github.tessdev.holidayservice.model.CommonHolidaysResponse;
 import com.github.tessdev.holidayservice.model.Holiday;
 import com.github.tessdev.holidayservice.model.HolidayCountResult;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
@@ -63,8 +68,32 @@ public class HolidayService {
         return d == DayOfWeek.SATURDAY || d == DayOfWeek.SUNDAY;
     }
 
-    public List<Holiday> getCommonHolidays(int year, String country1, String country2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCommonHolidays'");
+    public CommonHolidaysResponse getCommonHolidays(int year, String country1, String country2) {
+        List<Holiday> holidays1 = fetchHolidaysForYear(country1, year);
+
+        List<Holiday> holidays2 = fetchHolidaysForYear(country2, year);
+
+        // Map date -> holiday name for country1
+        Map<LocalDate, String> map1 = holidays1.stream()
+                .collect(Collectors.toMap(
+                        Holiday::date,
+                        Holiday::name,
+                        (a, b) -> a));
+
+        // Intersect with country2 holidays
+        List<CommonHoliday> common = holidays2.stream()
+                .filter(h -> map1.containsKey(h.date()))
+                .map(h -> {
+                    // Use HashMap to allow duplicate keys (same country)
+                    Map<String, String> localNames = new HashMap<>();
+                    localNames.put(country1, map1.get(h.date()));
+                    localNames.put(country2, h.name());
+                    return new CommonHoliday(h.date(), localNames);
+                })
+                .distinct()
+                .sorted(Comparator.comparing(CommonHoliday::date))
+                .toList();
+
+        return new CommonHolidaysResponse(year, common);
     }
 }

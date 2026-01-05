@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.tessdev.holidayservice.exception.CountryNotSupportedException;
-import com.github.tessdev.holidayservice.model.Holiday;
+import com.github.tessdev.holidayservice.model.CommonHolidaysResponse;
 import com.github.tessdev.holidayservice.model.LastHolidaysResponse;
 import com.github.tessdev.holidayservice.model.SortOrder;
 import com.github.tessdev.holidayservice.model.WeekdayHolidayCountsResponse;
@@ -71,9 +71,16 @@ public class HolidayController {
     }
 
     @GetMapping("/common")
-    public List<Holiday> getCommon(@RequestParam int year,
-            @RequestParam String country1,
-            @RequestParam String country2) throws IOException, InterruptedException {
-        return holidayService.getCommonHolidays(year, country1, country2);
+    public ResponseEntity<CommonHolidaysResponse> getCommon(
+            @Parameter(description = "Year to get common holidays for", example = "2024") @RequestParam int year,
+            @Parameter(description = "First ISO 3166-1 alpha-2 country code", example = "NL") @RequestParam String country1,
+            @Parameter(description = "Second ISO 3166-1 alpha-2 country code", example = "DE") @RequestParam String country2)
+            throws IOException, InterruptedException {
+
+        validator.validateYear(year);
+        validator.validateCountryCode(country1);
+        validator.validateCountryCode(country2);
+
+        return ResponseEntity.ok(holidayService.getCommonHolidays(year, country1, country2));
     }
 }
