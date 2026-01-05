@@ -57,7 +57,7 @@ class NagerApiClientTest {
                 List<Holiday> holidays = client.getHolidays(2025, "NL");
 
                 assertEquals(1, holidays.size());
-                assertEquals("Christmas Day", holidays.get(0).name());
+                assertEquals("Eerste Kerstdag", holidays.get(0).localName());
                 assertEquals(java.time.LocalDate.of(2025, 12, 25), holidays.get(0).date());
         }
 

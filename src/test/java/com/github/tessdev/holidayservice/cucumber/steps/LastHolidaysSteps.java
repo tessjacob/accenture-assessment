@@ -150,12 +150,12 @@ public class LastHolidaysSteps {
         }
     }
 
-    @Then("each holiday should contain a date and a name")
-    public void each_holiday_contains_date_and_name() throws Exception {
+    @Then("each holiday should contain a date and a localName")
+    public void each_holiday_contains_date_and_localName() throws Exception {
         JsonNode results = objectMapper.readTree(context.response.getBody()).get("results");
         for (JsonNode node : results) {
             assertThat(node.hasNonNull("date")).isTrue();
-            assertThat(node.hasNonNull("name")).isTrue();
+            assertThat(node.hasNonNull("localName")).isTrue();
         }
     }
 

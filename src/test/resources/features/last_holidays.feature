@@ -13,7 +13,7 @@ Scenario: Retrieve last three celebrated holidays for a valid country
     Then the response status should be 200
     And the response should contain at most 3 holidays
     And all holiday dates should be before today
-    And each holiday should contain a date and a name
+    And each holiday should contain a date and a localName
 
 Scenario: Invalid country code
     Given the country code is "X1"

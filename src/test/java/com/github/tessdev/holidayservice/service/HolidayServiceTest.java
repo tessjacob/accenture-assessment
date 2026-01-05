@@ -101,8 +101,8 @@ public class HolidayServiceTest {
                 LastHolidaysResponse response = holidayService.getLastHolidays("NL", 5);
 
                 // then
-                assertEquals("Newer", response.results().get(0).name());
-                assertEquals("Older", response.results().get(1).name());
+                assertEquals("Newer", response.results().get(0).localName());
+                assertEquals("Older", response.results().get(1).localName());
         }
 
         @Test

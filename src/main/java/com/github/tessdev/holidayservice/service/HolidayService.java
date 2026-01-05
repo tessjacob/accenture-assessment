@@ -38,7 +38,7 @@ public class HolidayService {
                 .filter(h -> h.date().isBefore(LocalDate.now())) // celebrated
                 .sorted(Comparator.comparing(Holiday::date).reversed())
                 .limit(limit)
-                .map(h -> new Holiday(h.date(), h.name()))
+                .map(h -> new Holiday(h.date(), h.localName()))
                 .toList();
 
         return new LastHolidaysResponse(
@@ -73,11 +73,11 @@ public class HolidayService {
 
         List<Holiday> holidays2 = fetchHolidaysForYear(country2, year);
 
-        // Map date -> holiday name for country1
+        // Map date -> holiday localName for country1
         Map<LocalDate, String> map1 = holidays1.stream()
                 .collect(Collectors.toMap(
                         Holiday::date,
-                        Holiday::name,
+                        Holiday::localName,
                         (a, b) -> a));
 
         // Intersect with country2 holidays
@@ -87,7 +87,7 @@ public class HolidayService {
                     // Use HashMap to allow duplicate keys (same country)
                     Map<String, String> localNames = new HashMap<>();
                     localNames.put(country1, map1.get(h.date()));
-                    localNames.put(country2, h.name());
+                    localNames.put(country2, h.localName());
                     return new CommonHoliday(h.date(), localNames);
                 })
                 .distinct()
