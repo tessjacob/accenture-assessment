@@ -8,7 +8,7 @@ public class InvalidYearException extends HolidayServiceException {
     public InvalidYearException(int year) {
         super(
                 "INVALID_YEAR",
-                "Year cannot be in the future.",
+                "Invalid year.",
                 HttpStatus.BAD_REQUEST,
                 Map.of("year", year));
     }

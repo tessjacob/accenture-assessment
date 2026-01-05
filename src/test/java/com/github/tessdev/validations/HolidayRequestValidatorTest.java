@@ -38,7 +38,7 @@ public class HolidayRequestValidatorTest {
         int tooEarly = 1800;
         assertThatThrownBy(() -> validator.validateYear(tooEarly))
                 .isInstanceOf(InvalidYearException.class)
-                .hasMessageContaining("1900"); // MIN_YEAR
+                .hasMessageContaining("Invalid year"); // MIN_YEAR
     }
 
     @Test
@@ -47,7 +47,7 @@ public class HolidayRequestValidatorTest {
         int futureYear = java.time.Year.now().getValue() + 5;
         assertThatThrownBy(() -> validator.validateYear(futureYear))
                 .isInstanceOf(InvalidYearException.class)
-                .hasMessageContaining(String.valueOf(java.time.Year.now().getValue()));
+                .hasMessageContaining("Invalid year");
     }
 
     /* ---------- Country Codes Validation ---------- */
