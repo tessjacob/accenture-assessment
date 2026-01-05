@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.github.tessdev.holidayservice.client.NagerApiClient;
@@ -28,6 +29,7 @@ public class HolidayService {
         this.nagerApiClient = nagerApiClient;
     }
 
+    @Cacheable(value = "holidays", key = "#year + '-' + #country")
     public List<Holiday> fetchHolidaysForYear(String country, int year) {
         return nagerApiClient.getHolidays(year, country);
     }
