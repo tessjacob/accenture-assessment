@@ -3,6 +3,8 @@ package com.github.tessdev.holidayservice.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,60 +92,55 @@ public class HolidayServiceTest {
         }
 
         // ===== LastHolidays Tests =====
-        /*
-         * @Test
-         * 
-         * @DisplayName("Should return only celebrated holidays.")
-         * void shouldReturnOnlyCelebratedHolidays() {
-         * LocalDate today = LocalDate.now();
-         * List<Holiday> input = List.of(
-         * new Holiday(today.minusDays(10), "Past 1"),
-         * new Holiday(today.plusDays(5), "Future"),
-         * new Holiday(today.minusDays(1), "Past 2"));
-         * when(nagerApiClient.getHolidays(YEAR, "KE")).thenReturn(input);
-         * 
-         * LastHolidaysResponse response = holidayService.getLastHolidays("KE", 3);
-         * 
-         * assertEquals(2, response.results().size());
-         * assertTrue(response.results().stream().allMatch(h ->
-         * h.date().isBefore(today)));
-         * assertEquals(2, response.count());
-         * assertEquals("KE", response.country());
-         * }
-         */
-        /*
-         * @Test
-         * 
-         * @DisplayName("Should sort holidays by date descending.")
-         * void shouldSortHolidaysByDateDescending() {
-         * LocalDate today = LocalDate.now();
-         * when(nagerApiClient.getHolidays(YEAR, "BO")).thenReturn(List.of(
-         * new Holiday(today.minusDays(20), "Older"),
-         * new Holiday(today.minusDays(5), "Newer")));
-         * 
-         * LastHolidaysResponse response = holidayService.getLastHolidays("BO", 5);
-         * assertEquals("Newer", response.results().get(0).localName());
-         * assertEquals("Older", response.results().get(1).localName());
-         * }
-         * 
-         * 
-         * /*
-         * 
-         * @Test
-         * 
-         * @DisplayName("Should limit number of results.")
-         * void shouldLimitNumberOfResults() {
-         * LocalDate today = LocalDate.now();
-         * when(nagerApiClient.getHolidays(YEAR, "BW")).thenReturn(List.of(
-         * new Holiday(today.minusDays(1), "H1"),
-         * new Holiday(today.minusDays(2), "H2"),
-         * new Holiday(today.minusDays(3), "H3")));
-         * 
-         * LastHolidaysResponse response = holidayService.getLastHolidays("BW", 2);
-         * assertEquals(2, response.results().size());
-         * assertEquals(2, response.count());
-         * }
-         */
+
+        @Test
+
+        @DisplayName("Should return only celebrated holidays.")
+        void shouldReturnOnlyCelebratedHolidays() {
+                LocalDate today = LocalDate.now();
+                List<Holiday> input = List.of(
+                                new Holiday(today.minusDays(10), "Past 1"),
+                                new Holiday(today.plusDays(5), "Future"),
+                                new Holiday(today.minusDays(1), "Past 2"));
+                when(nagerApiClient.getHolidays(anyInt(), eq("KE"))).thenReturn(input);
+
+                LastHolidaysResponse response = holidayService.getLastHolidays("KE", 3);
+
+                assertEquals(2, response.results().size());
+                assertTrue(response.results().stream().allMatch(h -> h.date().isBefore(today)));
+                assertEquals(2, response.count());
+                assertEquals("KE", response.country());
+        }
+
+        @Test
+
+        @DisplayName("Should sort holidays by date descending.")
+        void shouldSortHolidaysByDateDescending() {
+                LocalDate today = LocalDate.now();
+                when(nagerApiClient.getHolidays(anyInt(), eq("BO")))
+                                .thenReturn(List.of(
+                                                new Holiday(today.minusDays(20), "Older"),
+                                                new Holiday(today.minusDays(5), "Newer")));
+
+                LastHolidaysResponse response = holidayService.getLastHolidays("BO", 5);
+                assertEquals("Newer", response.results().get(0).localName());
+                assertEquals("Older", response.results().get(1).localName());
+        }
+
+        @Test
+
+        @DisplayName("Should limit number of results.")
+        void shouldLimitNumberOfResults() {
+                LocalDate today = LocalDate.now();
+                when(nagerApiClient.getHolidays(anyInt(), eq("BW"))).thenReturn(List.of(
+                                new Holiday(today.minusDays(1), "H1"),
+                                new Holiday(today.minusDays(2), "H2"),
+                                new Holiday(today.minusDays(3), "H3")));
+
+                LastHolidaysResponse response = holidayService.getLastHolidays("BW", 2);
+                assertEquals(2, response.results().size());
+                assertEquals(2, response.count());
+        }
 
         @Test
         @DisplayName("Should return empty list when limit is zero.")
